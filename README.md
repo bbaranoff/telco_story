@@ -496,7 +496,7 @@ With french explanations ;) sorry...
 [Impersonalisaion (français)](https://www.youtube.com/watch?v=gHKmmVZAaFo)
 
 With english explanation (now ;)
-[Impersonate (english](https://www.youtube.com/watch?v=rSGA4oFsFrQ)
+[Impersonate (english)](https://www.youtube.com/watch?v=rSGA4oFsFrQ)
 
 https://imgur.com/lUjkpGp
 First of all there is a bug with brltty so
