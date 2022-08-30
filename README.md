@@ -1090,8 +1090,8 @@ autoreconf -fi && ./configure --enable-trx && make -j4 && make install && ldconf
 
 apt install ruby-libxml ruby-dev ruby-dbus
 gem install serial smartcard
-
-Installing MS-Evil :
+```
+## Installing MS-Evil
 
 ```bash
 #!/bin/bash
@@ -1121,13 +1121,19 @@ make install
 ldconfig
 
 cd ../bb-2rfa/src
-mak`e nofirmware
+make nofirmware
 ```
-A5/1 Cracking :
+
+# A5/1 Cracking :
+
 Download the tables :
+
 [a51_tables](https://infocon.org/rainbow%20tables/A51/)
+
 Prepare them :
+
 ```bash
+
 #!/bin/bash
 offset_total=0
 echo 0 > test
@@ -1140,6 +1146,7 @@ echo $taille_arrondie >> test
 done
 awk '{S+=$0}{print S}END{}' test > offsets
 ```
- git clone http://jenda.hrach.eu/p/deka
- git clone https://github.com/0x7678/typhon-vx/tree/master/kraken 
- 
+```bash
+git clone http://jenda.hrach.eu/p/deka
+git clone https://github.com/0x7678/typhon-vx/tree/master/kraken 
+``` 
