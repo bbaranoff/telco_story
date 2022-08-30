@@ -1149,4 +1149,13 @@ awk '{S+=$0}{print S}END{}' test > offsets
 ```bash
 git clone http://jenda.hrach.eu/p/deka
 git clone https://github.com/0x7678/typhon-vx/tree/master/kraken 
-``` 
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.7 python3.7-dev
+sudo python3.7 -m pip install pyopencl
+cd deka
+./genkernel64.sh > slice.c
+sed -i -e 's/3.5m/3.7m/g' Makefile
+make
+
