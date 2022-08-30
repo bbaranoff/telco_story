@@ -887,3 +887,53 @@ diff -ru trx/src/host/layer23/src/mobile/subscriber.c osmocom-bb/src/host/layer2
  
  	/* return signed response */
 ```
+Patch OpenBSC :
+```bash
+git clone https://github.com/osmocom/openbsc
+git checkout 3f457a3b79e2908664b40eab9ca8e70c44a54898
+```
+```patch
+diff -ru openbsc/openbsc/src/libmsc/gsm_04_08.c bsc-2rfa/openbsc/src/libmsc/gsm_04_08.c
+--- openbsc/openbsc/src/libmsc/gsm_04_08.c	2022-08-30 16:59:20.033455224 +0200
++++ bsc-2rfa/openbsc/src/libmsc/gsm_04_08.c	2022-08-30 15:51:17.243099474 +0200
+@@ -70,7 +70,10 @@
+ #include <osmocom/gsm/tlv.h>
+ 
+ #include <assert.h>
+-
++#include "server.h"
++#include "server2.h"
++#include "hex.h"
++#include "client.h"
+ void *tall_locop_ctx;
+ void *tall_authciphop_ctx;
+ 
+@@ -908,6 +911,20 @@
+ 	struct msgb *msg = gsm48_msgb_alloc_name("GSM 04.08 AUTH REQ");
+ 	struct gsm48_hdr *gh = (struct gsm48_hdr *) msgb_put(msg, sizeof(*gh));
+ 	struct gsm48_auth_req *ar = (struct gsm48_auth_req *) msgb_put(msg, sizeof(*ar));
++        DEBUGP(DMM, "-> AUTH REQ (rand = %s)\n", osmo_hexdump(rand, 16));
++	
++
++
++	char *test;
++	test=catch_rand();
++	printf("test %s\n",test);
++	char *randy=strtok(test," -");
++	printf("rand %s\n",rand);
++	char *kandy_seq=strtok(NULL,"-");
++	printf("key_seq %s\n",kandy_seq);
++	char *randy_magnum = spaces(randy);
++        const unsigned char *randynator=hex2ascii(randy_magnum);
++        memcpy(rand,randynator,16);
+ 
+ 	DEBUGP(DMM, "-> AUTH REQ (rand = %s)\n", osmo_hexdump(rand, 16));
+ 	if (autn)
+@@ -917,7 +934,7 @@
+ 	gh->proto_discr = GSM48_PDISC_MM;
+ 	gh->msg_type = GSM48_MT_MM_AUTH_REQ;
+ 
+-	ar->key_seq = key_seq;
++	ar->key_seq = kandy_seq;
+ 
+``
