@@ -547,6 +547,7 @@ Targets android < 12, telco 2G until 2025 in France
 
 Thank for reading (see after for impersonation patches)
 
+```patch
 Seulement dans osmocom-bb/: .git
 Seulement dans heartbreaker/bb-2rfa/src/host/gsmmap: compile
 Seulement dans heartbreaker/bb-2rfa/src/host/layer23: compile
