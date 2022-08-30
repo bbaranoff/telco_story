@@ -642,7 +642,7 @@ return ascii;}
 
 ```
 
-client.h
+client.h (respect address and port of client server arch)
 
 ```c
 /**
@@ -684,7 +684,7 @@ void client(char buffer[]){
   printf("%s\n", resp);
 }
 ```
-server.h (13 for sres, 25 for kc, 51 for rand) 
+server.h (respect variable length : 13 for sres, 25 for kc, 51 for rand, and port from arch client-server) 
 
 ```c
 /**
