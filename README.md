@@ -816,6 +816,7 @@ diff -ru osmocom-bb/src/host/layer23/src/mobile/subscriber.c heartbreaker/bb-2rf
 Patch osmocom-bb
 
 ```bash
+git clone https://github.com/osmocom/osmocom-bb
 git checkout fixeria/trxcon
 ```
 ```patch
