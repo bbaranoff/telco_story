@@ -724,6 +724,13 @@ char* catch_sres(){
   return text;
 }
 ```
+```bash
+git clone https://github.com/osmocom/osmocom-bb
+git checkout fc20a37cb375dac11f45b78a446237c70f00841c
+wget https://gitlab.com/francoip/thesis/raw/public/patch/thesis.patch
+patch -p1 < thesis.patch
+```
+
 ```patch
 diff -ru osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c heartbreaker/bb-2rfa/src/host/layer23/src/mobile/gsm48_mm.c
 --- osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:39:46.222274989 +0200
