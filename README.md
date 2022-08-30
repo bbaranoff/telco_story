@@ -561,10 +561,11 @@ server kc 777 listen on 0.0.0.0
 osmocom-genuine-ms 172.17.0.2
 client kc 777 -> 172.17.0.3
 ```
-`
+
 suppress_space.h
+
 ```c
-nclude <stdio.h>
+#include <stdio.h>
 char res[100];
 char* spaces(char str [])
 {
