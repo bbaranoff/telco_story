@@ -545,7 +545,23 @@ What happen next ?
 
 Targets android < 12, telco 2G until 2025 in France
 
-Thank for reading (see after for impersonation patches)
+Thank for reading !
+
+clients-servers architecture :
+
+bsc-2rfa 172.17.0.2
+server rand 888 listen on 0.0.0.0
+client sres 666 -> 172.17.0.3
+
+bb-2rfa 172.17.0.3
+client rand 888 -> 172.17.0.2
+server sres 666 listen on 0.0.0.0
+server kc 777 listen on 0.0.0.0
+
+osmocom-genuine-ms 172.17.0.2
+client kc 777 -> 172.17.0.3
+
+
 suppress_space.h
 ```c
 nclude <stdio.h>
@@ -564,6 +580,7 @@ int i = 0;int j = 0;
        res[j] = '\0';
 return res;}
 ```
+
 hex.h
 ```c
 /*
@@ -623,6 +640,7 @@ const unsigned char* hex2ascii(char hexval[])
 return ascii;}
 
 ```
+
 client.h
 
 ```c
