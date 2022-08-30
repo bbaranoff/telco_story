@@ -684,7 +684,7 @@ void client(char buffer[]){
   printf("%s\n", resp);
 }
 ```
-server.h
+server.h (13 for sres, 25 for kc, 51 for rand) 
 
 ```c
 /**
