@@ -649,7 +649,7 @@ Patch osmocom-bb
 ```bash
 git checkout fixeria/trxcon
 ```
-
+```patch
 diff -ru trx/src/host/layer23/src/mobile/gsm48_mm.c osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c
 --- trx/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 16:41:37.076916961 +0200
 +++ osmocom-bb/src/host/layer23/src/mobile/gsm48_mm.c	2022-08-30 15:51:17.267099639 +0200
@@ -717,3 +717,4 @@ diff -ru trx/src/host/layer23/src/mobile/subscriber.c osmocom-bb/src/host/layer2
  	sim_job(ms, nmsg);
  
  	/* return signed response */
+```
