@@ -924,11 +924,10 @@ diff -ru openbsc/openbsc/src/libmsc/gsm_04_08.c bsc-2rfa/openbsc/src/libmsc/gsm_
  #include <osmocom/gsm/tlv.h>
  
  #include <assert.h>
--
 +#include "server.h"
-+#include "server2.h"
 +#include "hex.h"
 +#include "client.h"
+
  void *tall_locop_ctx;
  void *tall_authciphop_ctx;
  
